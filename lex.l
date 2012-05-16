@@ -34,9 +34,10 @@
 	
 	func (y *yylexer) Error(e string) {
 		log.Fatal(e)
+		return
 	}
 	
-	func (y *yylexer) Lex(lval (yySymType) int {
+	func (y *yylexer) Lex(lval yySymType) int {
 		var err error
 		c := y.current
 		if y.empty {
@@ -62,14 +63,15 @@ intlit		{signedint}|{unsignedint}{type}?
 stringlit 	\"{string}\"
 charlit 	[\'][.|[\\.]][\']
 name 	[\.\$\_0-9\@a-zA-Z]+
-float 	({dec}"\."{dec}({exp})?|{dec}{exp}){type}?
+float 	({dec}[\.]{dec}({exp})?|{dec}{exp}){type}?
 comment 	\%[.]*
 
 %%
 
 
 {intlit}
-		if lval.intVal, err = strconv.ParseInt(yytext,0 , length(yytext); err != nil {
+	lval.intVal, err = strconv.ParseInt(yytext,0 , length(yytext)) 
+		if err != nil {
 			log.Fatal(err)
 		}
 		return INT

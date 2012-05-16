@@ -208,7 +208,7 @@ formals: formal
 ;
 
 actuals: actual
-		| actauls ',' actual
+		| actuals ',' actual
 ;
 
 actualzo:
@@ -237,6 +237,18 @@ spanstmt: SPAN expr expr '{' body '}'
 
 assigstmt: lvalues = rvalues ';'
 
+callstmt: kindednameseqopt convopt expr '(' actualzo ')' targetsopt floworaliaszo ';'
+		| convopt JUMP expr actualzoparn targetsopt ';'
+
+returnstmt: convopt RETURN exprbracksopt actualzoparn ';'
+
+casestmt: NAME ':' body
+
+gotostmt: GOTO expr targetsopt ';'
+
+contstmt: CONTINUATION NAME '(' kindednamesopt ')' ':' 
+		| CUT TO expr '(' actualopt ')' flowzo ';'
+
 lvalues: lvalue
 		| lvalues lvalue
 ;
@@ -254,14 +266,11 @@ stmt: ';'
 		| switchstmt
 		| spanstmt
 		| assigstmt
-		| NAME '=' '%''%' NAME '(' actualzo')' flowzo ';'
-		| kindednameseqopt convopt expr '(' actualzo ')' targetsopt floworaliaszo ';'
-		| convopt JUMP expr actualzoparn targetsopt ';'
-		| convopt RETURN exprbracksopt actualzoparn ';'
-		| NAME ':'
-		| CONTINUATION NAME '(' kindednamesopt ')' ':'
-		| GOTO expr targetsopt ';'
-		| CUT TO expr '(' actualopt ')' flowzo ';'
+		| callstmt
+		| returnstmt
+		| caststmt
+		| contstmt
+		| gotostmt
 ;
 
 kindedname: kindopt NAME
@@ -332,15 +341,23 @@ targetsopt:
 		| targets
 ;
 
-expr: INT typeopt
+literalexpr: INT typeopt
 		| FLOAT typeopt
 		| '\'' CHAR '\'' typeopt
-		| NAME
-		| type '[' expr assertionsopt ']'
-		| '(' expr ')'
-		| expr op expr
+
+nameexpr: NAME
+
+memrefexpr: type '[' expr assertionsopt ']'
+
+opexpr: expr op expr
+		| '%' op actualzoparn
 		| NEGSUB expr
-		| '%' NAME actualzoparn
+
+expr:	literalexpr
+		| nameexpr
+		| memrefexpr
+		| opexpr
+		| '(' expr ')'
 ;
 
 typeopt: 
